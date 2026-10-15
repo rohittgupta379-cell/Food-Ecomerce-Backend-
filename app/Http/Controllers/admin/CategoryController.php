@@ -25,7 +25,7 @@ class CategoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:3|unique:categories,name',
-            'status' => 'sometimes|nullable|boolean'
+            'status' => 'sometimes|nullable'
         ]);
 
         if ($validator->fails()) {
@@ -41,8 +41,17 @@ class CategoryController extends Controller
         // Store the data
         $category = new Category();
         $category->name = $request->name;
-        $category->status = $request->input('status', 1);
+        $category->status = $request->status;
         $category->save();
+        
+        if(!empty($request->image)){
+            $image = $request->image;
+            $ext = $image->getClientOriginalExtension();
+            $fileName = time().'.'.$ext;
+            $image->move(public_path('/uploads/category'),$fileName);
+            $category->image = $fileName; // ✅ Correct
+            $category->save();
+        }
 
         return response()->json([
             'status' => true,
@@ -107,8 +116,17 @@ class CategoryController extends Controller
         // Store the data
         
         $category->name = $request->name;
-        $category->status = $request->input('status', 1);
+        $category->status = $request->status;
         $category->save();
+
+         if(!empty($request->image)){
+            $image = $request->image;
+            $ext = $image->getClientOriginalExtension();
+            $fileName = time().'.'.$ext;
+            $image->move(public_path('/uploads/category'),$fileName);
+            $category->image = $fileName();
+            $category->save();
+        }
 
         return response()->json([
             'status' => true,
